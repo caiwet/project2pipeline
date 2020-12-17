@@ -1,0 +1,3 @@
+load("/Users/weiweitian/Desktop/Academics/STAT302/projects/project2/project2pipeline/Output/Results/result.rds")
+load("/Users/weiweitian/Desktop/Academics/STAT302/projects/project2/project2pipeline/Output/Results/results.rds")
+load("/Users/weiweitian/Desktop/Academics/STAT302/projects/project2/project2pipeline/Output/Results/results.rds")

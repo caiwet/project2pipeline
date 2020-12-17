@@ -1,0 +1,121 @@
+---
+title: "Project 2 Pipeline"
+author: "Caiwei Tian"
+output: html_document
+---
+
+<!--- Begin styling code. --->
+<style type="text/css">
+/* Whole document: */
+body{
+  font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
+  font-size: 12pt;
+}
+h1.title {
+  font-size: 38px;
+  text-align: center;
+}
+h4.author {
+  font-size: 18px;
+  text-align: center;
+}
+h4.date {
+  font-size: 18px;
+  text-align: center;
+}
+</style>
+<!--- End styling code. --->
+
+
+
+This is the pipeline for project 2.
+Load our data and code.
+
+```{r}
+penguins <- load("../Data/my_penguins.rda")
+write.csv(get(penguins), "../Data/my_penguins.csv")
+gapminder <- load("../Data/my_gapminder.rda")
+write.csv(get(gapminder), "../Data/my_gapminder.csv")
+source("../Code/my_rf_cv.R")
+
+library(dplyr)
+library(readr)
+library(ggplot2)
+```
+
+```{r}
+# Generate a data frame containing k values and corresponding mse 
+# in 30 iterations
+k_list <- c(2, 5, 10)
+itr <- 30
+
+df_total <- data.frame()
+mean_cv <- c()
+sd_cv <- c()
+
+csv_list <- c()
+for (k in k_list) {
+  mse_list <- c()
+  for (i in 1:itr) {
+    mse <- my_rf_cv(k)
+    df_curr <- data.frame("k" = k, "mse" = mse)
+    df_total <- rbind(df_total, df_curr)
+    mse_list <- c(mse_list, mse)
+  }
+  csv_list <- c(csv_list, mse_list)
+  
+  mean_cv <- c(mean_cv, mean(mse_list))
+  sd_cv <- c(sd_cv, sd(mse_list))
+}
+
+result <- matrix(c(mean_cv, sd_cv), nrow = 3, ncol = 2, byrow = FALSE)
+rownames(result) <- c("k = 2", "k = 5", "k = 10")
+colnames(result) <- c("mean_cv", "sd_cv")
+result <- data.frame(result)
+saveRDS(result, "../Output/Results/results.rds")
+
+csv_list <- matrix(csv_list, nrow = 30, byrow = TRUE)
+colnames(csv_list) <- c("k2", "k5", "k10")
+csv_list <- data.frame(csv_list)
+write_csv(csv_list, "../Output/Results/results.csv")
+```
+
+
+
+```{r}
+# Generate a boxplot
+plot <- df_total %>% 
+  ggplot(aes(x = k, y = mse, group = k)) +
+  geom_boxplot(fill = "lightblue") +
+  labs(title = "CV estimated MSE for different k",
+       x = "k",
+       y = "CV estimated MSE") +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"),
+        plot.caption = element_text(hjust = 0, face = "italic"))
+ ggsave("../Output/Figures/fig.png") 
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
